@@ -21,7 +21,7 @@ struct Pnt
 	float trackSectionRoadWidth;
 }
 
-// The LNKS section is just a set of ranges defining lists of PNTs (start + length)
+// Then the LNKS section is a set of ranges (start + length) defining lists of PNTs 
 // For example the LNKS section for one course is
 // (0, 30)
 // (30, 238)
@@ -35,8 +35,11 @@ struct Pnt
 // The game stores the player's current checkpoint as a LNK index plus the index of a PNT within that LNK
 // For example "the 23rd point in the 4th LNK".
 // If you are at the last checkpoint in a LNK, then the next checkpoint is the first checkpoint in the next LNK
-// And the game calculates progress by adding up the length of all the previous track segments, taking into account the links
+// And the game calculates progress by adding up the length of all the previous track segments, taking into account the links.
+// So this is how the game can keep track of overall progress while using the same checkpoints in each lap.
 // (Sorry if this is confusing, I'll try to move this to an actual doc later with more thorough explanations)
+// (Also sidenote: I keep calling them "checkpoints" but I don't actually know if the game will reset you to the specific "pos" point or just
+// your nearest position along the track)
 
 struct PntIndex
 {
@@ -55,8 +58,18 @@ struct CarLocationInfo
 	ushort amntThroughCurSection;
 }
 
-// This is called every frame for the player 
-// !!!!! Importantly, additionalProgress is always set to 100 on these calls! (100 is quite large in the game's units!)
+// This is called every frame for the player
+//
+// !!!!! Importantly, additionalProgress is always set to 100.0 on these calls! (100 is quite large in the game's units!)
+//
+// A super high level summary would be
+//   1. Check if the player is in a special "progress fix" zone and adjust accordingly
+//   2. Based *solely* on the players new progress (curProgress + additionalProgress), find their current checkpoint
+//   3. If carPos is present, adjust their current checkpoint until you find a checkpoint section that their position is actually within
+//
+// So the effect of additionalProgress always being 100 is not that player is always 100 points ahead of where they should be.
+// I guess you could describe it as more of an "eager" strategy where the game will be generous - it will always put you
+// in the furthest valid checkpoint within 100 units of your current progress
 public void UpdateCarLocationInfo(CarLocationInfo* info, float additionalProgress, Vec3* carPos)
 {
 	// I believe carPos is null for all AI players
@@ -187,7 +200,7 @@ public void UpdateCarLocationInfo(CarLocationInfo* info, float additionalProgres
 	info.amntThroughCurSection = amntThroughCurSectionFloat * 65535;
 	info.curPntIndex = curPntIndex;
 	float pntProgress = GetProgressAtPoint(curPntIndex);
-	// NOTE: in reality there's a bit of nonsense here wehere it does (float)((int)(amntThroughCurSectionFloat * 65535) / 65535.0)
+	// NOTE: in reality there's a bit of nonsense here where it does (float)((int)(amntThroughCurSectionFloat * 65535) / 65535.0)
 	info.progressAlongCourse = pntProgress + (amntThroughCurSectionFloat * curPnt.trackSectionLength);
 	if(carPos != null)
 	{
@@ -198,6 +211,13 @@ public void UpdateCarLocationInfo(CarLocationInfo* info, float additionalProgres
 	}
 }
 
+// "ProgressFixZone" is just a name I came up with.
+// The way these are placed, it seems like there are some shortcuts that can cause problems with progress calculation.
+// For example, the upper loop in the pipe area in Mount Mayhem takes you in the opposite direction of the course
+// meaning that the game would just think the player went backwards and then their progress would stay stuck there for the rest of the race.
+// So the solution is these zones, which trigger when a player is within a specific position range and progress range.
+// If the player is in those ranges, it calls UpdateCarLocationInfo with a specific progress value (usually something a bit ahead of the zone),
+// which has the effect of lining up their progress correctly.
 struct ProgressFixZone {
 	// x center of square
 	float x;
@@ -213,7 +233,7 @@ struct ProgressFixZone {
 private void HandleProgressFixZones(CarLocationInfo* info, Vec3* carPos)
 {
 	float playerProgress = GetProgressAtPoint(GetPnt(info.curPntIndex)) 
-		+ (curPnt.trackSectionLength * (info.amntThroughCurSection / 65535));
+		+ (curPnt.trackSectionLength * (info.amntThroughCurSection / 65535.0));
 		
 	for(ProgressFixZone zone : GLOBAL_LINKEDLIST_OF_PROGRESS_FIX_ZONES)
 	{
