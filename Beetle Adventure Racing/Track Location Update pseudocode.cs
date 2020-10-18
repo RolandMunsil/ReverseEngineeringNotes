@@ -60,14 +60,14 @@ struct CarLocationInfo
 
 // This is called every frame for the player
 //
-// !!!!! Importantly, additionalProgress is always set to 100.0 on these calls! (100 is quite large in the game's units!)
+// !!!!! Importantly, additionalProgress is always set to 100.0 on these calls!
 //
 // A super high level summary would be
 //   1. Check if the player is in a special "progress fix" zone and adjust accordingly
 //   2. Based *solely* on the players new progress (curProgress + additionalProgress), find their current checkpoint
 //   3. If carPos is present, adjust their current checkpoint until you find a checkpoint section that their position is actually within
 //
-// So the effect of additionalProgress always being 100 is not that player is always 100 points ahead of where they should be.
+// So the effect of additionalProgress always being 100 is not that player is always 100 units ahead of where they should be.
 // I guess you could describe it as more of an "eager" strategy where the game will be generous - it will always put you
 // in the furthest valid checkpoint within 100 units of your current progress
 public void UpdateCarLocationInfo(CarLocationInfo* info, float additionalProgress, Vec3* carPos)
@@ -232,8 +232,7 @@ struct ProgressFixZone {
 // note: this is much more simplified pseudocode since this is not a particularly complex method
 private void HandleProgressFixZones(CarLocationInfo* info, Vec3* carPos)
 {
-    float playerProgress = GetProgressAtPoint(GetPnt(info.curPntIndex)) 
-        + (curPnt.trackSectionLength * (info.amntThroughCurSection / 65535.0));
+    float playerProgress = GetProgressAtPoint(GetPnt(info.curPntIndex)) + (curPnt.trackSectionLength * (info.amntThroughCurSection / 65535.0));
         
     for(ProgressFixZone zone : GLOBAL_LINKEDLIST_OF_PROGRESS_FIX_ZONES)
     {
