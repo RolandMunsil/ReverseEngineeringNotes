@@ -242,6 +242,7 @@ private void HandleProgressFixZones(CarLocationInfo* info, Vec3* carPos)
             && playerProgress > zone.progressMin)
         {
             UpdateCarLocationInfo(info, zone.newProgress - playerProgress, null);
+            return;
         }
     }
 }
