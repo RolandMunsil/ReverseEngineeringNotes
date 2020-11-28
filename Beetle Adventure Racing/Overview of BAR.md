@@ -119,4 +119,4 @@ And if you're doing rendering stuff:
  * In MIPS, the first instruction after a branch is always executed regardless of the branch condition. This confused me a fair bit at first!
  
 # Questions?
-Don't hesitate to message me if anything is unclear or you want help with something specific! There's a lot of knowledge in my head after working with BAR a bunch, and I wrote most of this in one go so I may have missed some critical bit when I wrote it. 
+Don't hesitate to message me if anything is unclear or you want help with something specific! There's a lot of knowledge in my head after working with BAR a bunch, and I wrote most of this in one go so I may have missed some critical bit when I wrote it. This is also inteneded more as an overview, so I have a fair bit of more detailed information that I just haven't included here (e.g. there are a lot of methods that I've figured out the purpose of)
