@@ -88,7 +88,7 @@ You may notice that the module files themselves have some non-code at the end of
 # Tools and resources
 ## Tools
 If you want to start reverse engineering BAR yourself, you really only need two things:
- * Ghidra: This is basically a necessity for anything beyond just searching for values in memory. It's a free 
+ * Ghidra: This is basically a necessity for any serious reverse engineering, especially code analysis. It's a free 
    tool for decompilation, and while it can be a little finicky it's extremely useful. You almost don't need to know
    anything about MIPS (or even assembly) to use it, although I'd still recommend at least getting a basic understanding.
    You can use this loader if you want https://github.com/zeroKilo/N64LoaderWV although you don't need it - it just does
@@ -119,4 +119,4 @@ And if you're doing rendering stuff:
  * In MIPS, the first instruction after a branch is always executed regardless of the branch condition. This confused me a fair bit at first!
  
 # Questions?
-Don't hesitate to message me if anything is unclear or you want help with something specific! There's a lot of knowledge in my head after working with BAR a bunch and I may have missed some critical bit when I wrote this. 
+Don't hesitate to message me if anything is unclear or you want help with something specific! There's a lot of knowledge in my head after working with BAR a bunch, and I wrote most of this in one go so I may have missed some critical bit when I wrote it. 
